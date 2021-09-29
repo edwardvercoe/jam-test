@@ -1,6 +1,6 @@
 import { createClient } from "contentful";
-import Image from "next/image";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import Image from "next/image";
 import Skeleton from "../../components/Skeleton";
 
 const client = createClient({
@@ -8,31 +8,30 @@ const client = createClient({
   accessToken: process.env.CONTENTFUL_ACCESS_KEY,
 });
 
-// Get static paths async function runs on build time.
 export const getStaticPaths = async () => {
-  const response = await client.getEntries({
+  const res = await client.getEntries({
     content_type: "recipe",
   });
-  const paths = response.items.map((item) => {
+
+  const paths = res.items.map((item) => {
     return {
       params: { slug: item.fields.slug },
     };
   });
 
   return {
-    paths: paths,
+    paths,
     fallback: true,
   };
 };
 
-// get static props func retrieves the unique slug page id and queries contentful based on that slug
-export async function getStaticProps({ params }) {
+export const getStaticProps = async ({ params }) => {
   const { items } = await client.getEntries({
     content_type: "recipe",
     "fields.slug": params.slug,
   });
 
-  if (!items.legnth) {
+  if (!items.length) {
     return {
       redirect: {
         destination: "/",
@@ -43,14 +42,15 @@ export async function getStaticProps({ params }) {
 
   return {
     props: { recipe: items[0] },
-    revalidate: 60, // check/validate if content has changed every 10s
+    revalidate: 1,
   };
-}
+};
 
 export default function RecipeDetails({ recipe }) {
   if (!recipe) return <Skeleton />;
 
   const { featuredImage, title, cookingTime, ingredients, method } = recipe.fields;
+
   return (
     <div>
       <div className="banner">
@@ -60,15 +60,15 @@ export default function RecipeDetails({ recipe }) {
 
       <div className="info">
         <p>Takes about {cookingTime} mins to cook.</p>
-        <h3>Ingredients: </h3>
+        <h3>Ingredients:</h3>
 
-        {ingredients.map((item) => (
-          <span key={item}>{item}</span>
+        {ingredients.map((ing) => (
+          <span key={ing}>{ing}</span>
         ))}
       </div>
 
       <div className="method">
-        <h3>method:</h3>
+        <h3>Method:</h3>
         <div>{documentToReactComponents(method)}</div>
       </div>
 
