@@ -13,7 +13,7 @@ export async function getStaticProps() {
     props: {
       recipes: response.items,
     },
-    revalidate: 10, // check/validate if content has changed every 10s
+    revalidate: 60, // check/validate if content has changed every 10s
   };
 }
 
