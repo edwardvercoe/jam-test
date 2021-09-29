@@ -32,6 +32,15 @@ export async function getStaticProps({ params }) {
     "fields.slug": params.slug,
   });
 
+  if (!items.legnth) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: { recipe: items[0] },
     revalidate: 60, // check/validate if content has changed every 10s
